@@ -5,7 +5,7 @@ from models.solicitud import Solicitud
 from schemas.solicitud_schema import SolicitudSchema
 from marshmallow import ValidationError
 
-bp = Blueprint('solicitud', __name__, url_prefix='/solicitudes')
+bp = Blueprint("solicitud", __name__, url_prefix="/solicitudes")
 
 # schema para un solo recurso
 schema = SolicitudSchema()             

@@ -17,7 +17,7 @@ export default function FormularioSolicitud({ onNuevaSolicitud }) {
       onSubmit={async (values, { resetForm, setSubmitting }) => {
         setSubmitting(true);
         try {
-          const res = await fetch(`${API_URL}/solicitudes`, {
+          const res = await fetch(`${API_URL}/solicitudes`, {   //
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(values),

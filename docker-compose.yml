@@ -32,7 +32,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        REACT_APP_API_URL: http://frontend:80
+        REACT_APP_API_URL: ""
     ports:
       - "3000:80"   # <--- esta línea es la clave
     depends_on:
