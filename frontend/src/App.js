@@ -48,7 +48,7 @@ export default function App() {
 
   const handleEditarSolicitud = async (id, empresa, cargo) => {
     try {
-      const res = await fetch(`${ENDPOINT_SOLICITUDES}/${id}`, {
+      const res = await fetch(`${ENDPOINT_SOLICITUDES}${id}/`, {   //
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ empresa, cargo }),
@@ -64,7 +64,8 @@ export default function App() {
 
   const handleEliminarSolicitud = async (id) => {
     try {
-      const res = await fetch(`${ENDPOINT_SOLICITUDES}/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${ENDPOINT_SOLICITUDES}${id}/`, {   // 
+        method: 'DELETE' });
       if (!res.ok) throw new Error('Error eliminando solicitud');
       setSolicitudes((prev) => prev.filter((s) => s.id !== id));
       toast.success('Solicitud eliminada.');
