@@ -1,5 +1,6 @@
 # backend/app.py
 from flask import Flask, jsonify, make_response
+from flask_migrate import Migrate
 from flask_cors import CORS
 from config import Config
 from extensions import db
@@ -8,7 +9,6 @@ import traceback
 
 def create_app():
     app = Flask(__name__)
-
     # Habilita CORS para todas las rutas
     CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -28,6 +28,7 @@ def create_app():
 
     # Inicializar extensiones y rutas
     db.init_app(app)
+    Migrate(app, db) 
     register_routes(app)
 
     # Crear tablas si no existen (funciona tanto en dev como bajo Gunicorn)

@@ -1,8 +1,8 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
+import { ENDPOINT_SOLICITUDES } from "../config";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const validationSchema = Yup.object({
   empresa: Yup.string().trim().required("La empresa es obligatoria"),
@@ -17,7 +17,7 @@ export default function FormularioSolicitud({ onNuevaSolicitud }) {
       onSubmit={async (values, { resetForm, setSubmitting }) => {
         setSubmitting(true);
         try {
-          const res = await fetch(`${API_URL}/solicitudes`, {   //
+          const res = await fetch(ENDPOINT_SOLICITUDES, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(values),

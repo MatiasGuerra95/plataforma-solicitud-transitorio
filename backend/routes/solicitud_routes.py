@@ -25,8 +25,33 @@ def crear_solicitud():
 
 @bp.route('/', methods=['GET'])
 def listar_solicitudes():
-    all_s = Solicitud.query.order_by(Solicitud.fecha_creacion.desc()).all()
-    return jsonify(schema_many.dump(all_s)), 200
+    # Parámetros
+    page      = request.args.get("page",     type=int, default=1)
+    per_page  = request.args.get("per_page", type=int, default=5)
+    empresa   = request.args.get("empresa",  type=str)
+    fecha_desde = request.args.get("fecha_desde", type=str)
+    fecha_hasta = request.args.get("fecha_hasta", type=str)
+
+    q = Solicitud.query
+    if empresa:
+        q = q.filter(Solicitud.empresa.ilike(f"%{empresa}%"))
+    if fecha_desde:
+        q = q.filter(Solicitud.fecha_creacion >= fecha_desde)
+    if fecha_hasta:
+        q = q.filter(Solicitud.fecha_creacion <= fecha_hasta)
+
+    pag = q.order_by(Solicitud.fecha_creacion.desc()) \
+           .paginate(page=page, per_page=per_page, error_out=False)
+
+    items = [s.to_dict() for s in pag.items]
+    meta  = {
+      "page":     pag.page,
+      "pages":    pag.pages,
+      "has_prev": pag.has_prev,
+      "has_next": pag.has_next,
+      "total":    pag.total
+    }
+    return jsonify(data=items, meta=meta), 200
 
 @bp.route('/<int:id>', methods=['PUT'])
 def actualizar_solicitud(id):
