@@ -1,7 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { ENDPOINT_SOLICITUDES } from "../config";
+import { BASE_SOLICITUDES } from "../config";
 
 
 const validationSchema = Yup.object({
@@ -17,7 +17,7 @@ export default function FormularioSolicitud({ onNuevaSolicitud }) {
       onSubmit={async (values, { resetForm, setSubmitting }) => {
         setSubmitting(true);
         try {
-          const res = await fetch(ENDPOINT_SOLICITUDES, {
+          const res = await fetch(BASE_SOLICITUDES, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(values),
