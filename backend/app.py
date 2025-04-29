@@ -1,9 +1,9 @@
 # backend/app.py
 from flask import Flask, jsonify, make_response
-from flask_migrate import Migrate
+from flask_migrate import Migrate, migrate
 from flask_cors import CORS
 from config import Config
-from extensions import db
+from extensions import db, migrate
 from routes import register_routes
 import traceback
 
@@ -28,12 +28,9 @@ def create_app():
 
     # Inicializar extensiones y rutas
     db.init_app(app)
+    migrate.init_app(app, db)
     Migrate(app, db) 
     register_routes(app)
-
-    # Crear tablas si no existen (funciona tanto en dev como bajo Gunicorn)
-    with app.app_context():
-        db.create_all()
 
     return app
 

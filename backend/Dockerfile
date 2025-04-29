@@ -23,4 +23,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # Comando por defecto: ejecuta con Gunicorn para producción ligera
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["sh", "-c", "flask db upgrade && gunicorn -b 0.0.0.0:5000 app:app"]
+
