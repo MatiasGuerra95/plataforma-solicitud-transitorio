@@ -1,8 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { BASE_SOLICITUDES } from "../config";
-
+import { SOLICITUDES_API } from "../config";   // ← usamos solo esta constante
 
 const validationSchema = Yup.object({
   empresa: Yup.string().trim().required("La empresa es obligatoria"),
@@ -17,11 +16,13 @@ export default function FormularioSolicitud({ onNuevaSolicitud }) {
       onSubmit={async (values, { resetForm, setSubmitting }) => {
         setSubmitting(true);
         try {
-          const res = await fetch(BASE_SOLICITUDES, {
+          // POST a /solicitudes/  (con barra final)
+          const res = await fetch(`${SOLICITUDES_API}/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(values),
           });
+
           const data = await res.json();
           if (!res.ok) {
             const msgs = Object.values(data).flat().join(" / ");
@@ -45,22 +46,32 @@ export default function FormularioSolicitud({ onNuevaSolicitud }) {
               placeholder="Empresa"
               className="w-full p-2 border rounded"
             />
-            <ErrorMessage name="empresa" component="div" className="text-red-600 text-sm" />
+            <ErrorMessage
+              name="empresa"
+              component="div"
+              className="text-red-600 text-sm"
+            />
           </div>
+
           <div>
             <Field
               name="cargo"
               placeholder="Cargo"
               className="w-full p-2 border rounded"
             />
-            <ErrorMessage name="cargo" component="div" className="text-red-600 text-sm" />
+            <ErrorMessage
+              name="cargo"
+              component="div"
+              className="text-red-600 text-sm"
+            />
           </div>
+
           <button
             type="submit"
             disabled={isSubmitting}
             className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {isSubmitting ? "Enviando..." : "Enviar solicitud"}
+            {isSubmitting ? "Enviando…" : "Enviar solicitud"}
           </button>
         </Form>
       )}
