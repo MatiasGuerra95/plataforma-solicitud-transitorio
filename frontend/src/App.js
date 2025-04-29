@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { ENDPOINT_SOLICITUDES } from './config';
-import { Toaster, toast } from 'react-hot-toast';
-import FormularioSolicitud from './components/FormularioSolicitud';
-import ListadoSolicitudes from './components/ListadoSolicitudes';
+// frontend/src/App.js
+import { useEffect, useState, useCallback } from "react";
+import { BASE_SOLICITUDES } from "./config";          // ← NUEVO
+import { Toaster, toast } from "react-hot-toast";
+import FormularioSolicitud from "./components/FormularioSolicitud";
+import ListadoSolicitudes from "./components/ListadoSolicitudes";
 
 export default function App() {
-  const [solicitudes, setSolicitudes] = useState([]);
-  const [meta, setMeta] = useState({ page: 1, pages: 1, has_prev: false, has_next: false });
-  const [loading, setLoading] = useState(false);
+  /* ----------------------------- estados ----------------------------- */
+  const [solicitudes, setSolicitudes]   = useState([]);
+  const [meta, setMeta]                 = useState({ page: 1, pages: 1, has_prev: false, has_next: false });
+  const [loading, setLoading]           = useState(false);
 
-  // Helper para cargar solicitudes con paginación
+  /* -------------------------- helpers fetch -------------------------- */
   const fetchSolicitudes = useCallback(async (page = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`${ENDPOINT_SOLICITUDES}?page=${page}`);
-      if (!res.ok) throw new Error('Error al cargar solicitudes');
-      const json = await res.json();
-      // El backend devuelve { data: [...], meta: {...} }
-      const items = Array.isArray(json) ? json : json.data || [];
-      setSolicitudes(items);
-      setMeta(json.meta || { page, pages: 1, has_prev: false, has_next: false });
+      const res  = await fetch(`${BASE_SOLICITUDES}/?page=${page}`);   // ← nota la “/”
+      if (!res.ok) throw new Error("Error al cargar solicitudes");
+      const data = await res.json();
+      setSolicitudes(Array.isArray(data) ? data : data.items);
+      setMeta(data.meta ?? { page: 1, pages: 1, has_prev: false, has_next: false });
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -27,36 +27,25 @@ export default function App() {
     }
   }, []);
 
-  // Carga inicial y cuando cambien dependencias
-  useEffect(() => {
-    fetchSolicitudes();
-  }, [fetchSolicitudes]);
+  useEffect(() => { fetchSolicitudes(); }, [fetchSolicitudes]);
 
-  // Cambia página
-  const setPage = (p) => {
-    if (p >= 1 && p <= meta.pages) fetchSolicitudes(p);
-  };
+  const setPage = (p) => p >= 1 && p <= meta.pages && fetchSolicitudes(p);
 
-  // CRUD handlers
-  const handleNuevaSolicitud = (nueva) => {
-    if (meta.page === 1) {
-      setSolicitudes((prev) => [nueva, ...prev]);
-    } else {
-      setPage(1);
-    }
-  };
+  /* ------------------------------ CRUD ------------------------------ */
+  const handleNuevaSolicitud = (s) =>
+    meta.page === 1 ? setSolicitudes((prev) => [s, ...prev]) : fetchSolicitudes(meta.page);
 
   const handleEditarSolicitud = async (id, empresa, cargo) => {
     try {
-      const res = await fetch(`${ENDPOINT_SOLICITUDES}${id}/`, {   //
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(`${BASE_SOLICITUDES}/${id}`, {          // ← SIN “/” al final
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ empresa, cargo }),
       });
-      if (!res.ok) throw new Error('Error actualizando solicitud');
+      if (!res.ok) throw new Error("Error actualizando solicitud");
       const updated = await res.json();
       setSolicitudes((prev) => prev.map((s) => (s.id === id ? updated : s)));
-      toast.success('Solicitud actualizada.');
+      toast.success("Solicitud actualizada.");
     } catch (err) {
       toast.error(err.message);
     }
@@ -64,16 +53,16 @@ export default function App() {
 
   const handleEliminarSolicitud = async (id) => {
     try {
-      const res = await fetch(`${ENDPOINT_SOLICITUDES}${id}/`, {   // 
-        method: 'DELETE' });
-      if (!res.ok) throw new Error('Error eliminando solicitud');
+      const res = await fetch(`${BASE_SOLICITUDES}/${id}`, { method: "DELETE" }); // ← idem
+      if (!res.ok) throw new Error("Error eliminando solicitud");
       setSolicitudes((prev) => prev.filter((s) => s.id !== id));
-      toast.success('Solicitud eliminada.');
+      toast.success("Solicitud eliminada.");
     } catch (err) {
       toast.error(err.message);
     }
   };
 
+  /* ----------------------------- render ------------------------------ */
   return (
     <>
       <Toaster position="top-center" />
@@ -92,17 +81,17 @@ export default function App() {
 
             <div className="flex justify-between items-center pt-4">
               <button
-                onClick={() => setPage(meta.page - 1)}
+                onClick={() => meta.has_prev && setPage(meta.page - 1)}
                 disabled={!meta.has_prev}
                 className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
               >
                 Anterior
               </button>
-              <span className="text-sm">
-                Página {meta.page} de {meta.pages}
-              </span>
+
+              <span className="text-sm">Página {meta.page} de {meta.pages}</span>
+
               <button
-                onClick={() => setPage(meta.page + 1)}
+                onClick={() => meta.has_next && setPage(meta.page + 1)}
                 disabled={!meta.has_next}
                 className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
               >
